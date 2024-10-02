@@ -1,0 +1,5 @@
+Note:
+
+1. update.message.reply_text vs update.effective_user.send_message [Invio di messaggi]
+
+2. update.message.from_user.username vs update.effective_user.username [Recupero di informazioni]
