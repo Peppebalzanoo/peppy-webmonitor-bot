@@ -3,3 +3,17 @@ Note:
 1. update.message.reply_text vs update.effective_user.send_message [Invio di messaggi]
 
 2. update.message.from_user.username vs update.effective_user.username [Recupero di informazioni]
+
+
+ if os.path.isfile("content.txt"):
+                with open("content.txt", "r", encoding="utf-8") as file:
+                    previous_content = file.read()
+                if response.text != previous_content and len(previous_content):
+                    print("Website content has changed!")
+                    await update.message.reply_text("Hi, website content has changed!")
+                else:
+                    print("Website content not changed!")
+
+            with open("content.txt", "w", encoding="utf-8") as file:
+                # Update the saved content
+                file.write(response.text)

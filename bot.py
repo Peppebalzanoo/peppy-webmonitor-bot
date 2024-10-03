@@ -2,7 +2,7 @@ import os
 import logging
 from telegram import Update
 from dotenv import load_dotenv
-#?# Per usare MARKDOWN/HTML nella formattazione
+#? Per usare MARKDOWN/HTML nella formattazione
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 

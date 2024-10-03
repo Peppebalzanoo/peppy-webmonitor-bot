@@ -1,9 +1,6 @@
 import os
 import logging
 import random
-
-from pkg_resources import file_ns_handler
-
 from qa_db import q_and_a_dict
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
