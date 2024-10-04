@@ -9,9 +9,8 @@ import asyncio
 import httpx
 import os
 
-# username : set(url1,...,urlN)
+# username : set("url1",...,"urlN")
 user_list_dict = {}
-
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Hi <b>{update.message.from_user.username}</b>, nice to meet you, I'm @PeppyWebMonitorBot. \n"

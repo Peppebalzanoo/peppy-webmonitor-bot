@@ -1,7 +1,6 @@
 import os
 import logging
 import random
-from qa_db import q_and_a_dict
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from dotenv import load_dotenv
 
@@ -10,6 +9,12 @@ from telegram.constants import ParseMode
 
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 from telegram.ext import CallbackContext, CallbackQueryHandler
+
+q_and_a_dict = {
+    "Di che colore è il cielo?" : "azzurro",
+    "Quanto fa la somma di 2 + 2?" : "4",
+    "Il voto di NLP è stato?": "30"
+}
 
 # Load .env variables and override system's variables
 load_dotenv(override=True)

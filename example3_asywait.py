@@ -2,12 +2,10 @@ import asyncio
 import os
 import logging
 from asyncio import create_task
-
 from dotenv import load_dotenv
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, filters, ContextTypes
 from telegram import Update
-import aiohttp
 
 async def foo(update, value, time, string):
     await asyncio.sleep(time)

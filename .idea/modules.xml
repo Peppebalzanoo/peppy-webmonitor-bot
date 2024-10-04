@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Peppy WebMonitor Bot.iml" filepath="$PROJECT_DIR$/.idea/Peppy WebMonitor Bot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Peppy Bot.iml" filepath="$PROJECT_DIR$/.idea/Peppy Bot.iml" />
     </modules>
   </component>
 </project>
