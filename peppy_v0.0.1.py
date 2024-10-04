@@ -1,14 +1,13 @@
-import asyncio
-import difflib
-import os
-import logging
+from telegram.ext import Application, CommandHandler, filters, ContextTypes
+from telegram.constants import ParseMode
 from asyncio import create_task
-import httpx
-import validators
 from dotenv import load_dotenv
 from telegram import Update
-from telegram.constants import ParseMode
-from telegram.ext import Application, CommandHandler, filters, ContextTypes
+import validators
+import logging
+import asyncio
+import httpx
+import os
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -19,42 +18,51 @@ async def foo(update, value, time, string):
     await update.message.reply_text(f"task{value}: " + string)
 
 
-async def create_new_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"Hi <b>{update.message.from_user.username}</b>, you are in new command!", parse_mode=ParseMode.HTML)
+async def foo_task(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(f"Hi <b>{update.message.from_user.username}</b>, you are in /new command!", parse_mode=ParseMode.HTML)
     create_task(foo(update, 1, 6, "Hello World!"))
 
 
-async def validate_url(update, url):
+async def validate_url(update: Update, url):
     if len(url) <= 0:
         await update.message.reply_text("Sorry, url is empty!")
+        return False
     else:
         if validators.url(url):
             await update.message.reply_text("Done, url added correctly!")
+            return True
         else:
             await update.message.reply_text("Sorry, url is invalid!")
+            return False
 
 
-async def routine(update, url) -> None:
-    prev_content = None
-    while True:
-        async with httpx.AsyncClient() as client:
+async def trak_routine(update, url) -> None:
+    client = httpx.AsyncClient()
+    try:
+        prev_content = None
+        while True:
             response = await client.get(url)
             curr_content = response.text
             if prev_content is not None:
                 if prev_content != curr_content:
-                    print("Content has changed!")
-                    await update.message.reply_text("Hi, some content has changed!")
+                    logging.info(f"Content has changed for {url}")
+                    await update.message.reply_text(f"Hi, some content has changed for {url}")
                 else:
-                    print("Content not changed!")
+                    logging.info(f"Content not changed for {url}")
             prev_content = curr_content
-        # Wait for the specified interval before the next check
-        await asyncio.sleep(60)
+            # Wait for the specified interval before the next check
+            await asyncio.sleep(60)
+    except Exception as exc:
+        logging.warning("An exception occurred:", exc)
+    finally:
+        await client.aclose()
 
 
 async def add(update, context) -> None:
     url = update.message.text.replace("/add", "").replace(" ", "")
-    await validate_url(update, url)
-    create_task(routine(update, url))
+    is_valid = await validate_url(update, url)
+    if is_valid:
+        create_task(trak_routine(update, url))
 
 
 def main() -> None:
@@ -71,7 +79,7 @@ def main() -> None:
     app = Application.builder().token(TOKEN_API).build()
     app.add_handler(CommandHandler("start", start, filters=filters.User(ALLOWED_IDS)))
     app.add_handler(CommandHandler("add", add, filters=filters.User(ALLOWED_IDS)))
-    app.add_handler(CommandHandler("new", create_new_task, filters=filters.User(ALLOWED_IDS)))
+    app.add_handler(CommandHandler("new", foo_task, filters=filters.User(ALLOWED_IDS)))
     app.run_polling()
 
 
