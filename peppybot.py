@@ -1,8 +1,9 @@
 from telegram.ext import Application, CommandHandler, filters, ContextTypes, CallbackContext, CallbackQueryHandler, ConversationHandler, MessageHandler
-from telegram.constants import ParseMode
-from asyncio import create_task, CancelledError
-from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from asyncio import create_task, CancelledError
+from urllib.parse import urlparse, urljoin
+from telegram.constants import ParseMode
+from dotenv import load_dotenv
 import validators
 import logging
 import asyncio
@@ -26,37 +27,33 @@ ALLOWED_IDS = [int(user_id) for user_id in os.getenv("ALLOWED_IDS").replace(" ",
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = "Hi <b>{update.message.from_user.username}</b>, nice to meet you, I'm @PeppyWebMonitorBot. \n" \
-           "\n My job is to follow and monitor the websites you want. " \
-           "I will notify you whenever one of your websites has undergone a change in content.\n\n" \
-           "For the list of commands use /help"
+    text = "Hello <b>{update.message.from_user.username}</b>, it's a pleasure to meet you! I am @PeppyWebMonitorBot.\n" \
+           "\n My purpose is to track and monitor the websites you want. " \
+           "I will notify you whenever one of the websites you are following experiences a change in content.\n\n" \
+           "To view a list of available commands, use /help."
     await update.message.reply_text(f"{text}", parse_mode=ParseMode.HTML)
 
 
 async def show_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    text = "\nHere\'s the list of my commands:\n" \
-           "/start - restrat the bot\n" \
-           "/follow - follow url\n" \
-           "/unfollow - unfollow url\n" \
-           "/list - see followed url\n" \
-           "/help - see list of commands \n"
+    text = "\nHere is a list of available commands:\n" \
+           "/start - restart the bot\n" \
+           "/follow - follow a URL\n" \
+           "/unfollow - unfollow a URL\n" \
+           "/list - display followed URLs\n" \
+           "/help - show this list of commands\n"
     await update.message.reply_text(f"Hi <b>{update.message.from_user.username}</b>, you are in /help command!\n"
                                     f"{text}", parse_mode=ParseMode.HTML)
 
-
-async def shower(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
     curr_list_url = user_url_dict.get(update.message.from_user.username)
+    logging.debug(print(curr_list_url))
     if curr_list_url is not None and len(curr_list_url) > 0:
         text = ""
         for i, item in enumerate(curr_list_url):
             text += f"{i + 1}. {item}\n"
         await update.message.reply_text(text, disable_web_page_preview=True)
     else:
-        await update.message.reply_text("You don't follow any url!")
-
-
-async def show_list(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await shower(update, context)
+      await update.message.reply_text("You are not currently following any URLs.")
 
 
 async def trak_routine(update: Update, url) -> None:
@@ -68,21 +65,19 @@ async def trak_routine(update: Update, url) -> None:
                 curr_content = response.text
                 if prev_content is not None:
                     if prev_content != curr_content:
-                        print(f"Content has changed for {url}")
-                        await update.message.reply_text(f"Hi, some content has changed for {url}")
+                        logging.debug(print(f"Content has changed for {url}"))
+                        await update.message.reply_text(f"Hello, there has been a change in the content of {url}.")
                     else:
-                        print(f"Content not changed for {url}")
+                        logging.debug(print(f"Content has not changed for {url}"))
                 prev_content = curr_content
                 # Wait for the specified interval before the next check
-                await asyncio.sleep(60*60)  #1 hour
+                await asyncio.sleep(60)  #60 * 60 = 1 hour
     except CancelledError:
-        print(f"Task for {url} was cancelled.")  # Debugging information
-        await update.message.reply_text(f"Monitoring of {url} has been stopped.", disable_web_page_preview=True)
-        raise  # Rilancia l'errore per fermare il task
+        await update.message.reply_text(f"Monitoring of {url} has been successfully stopped.", disable_web_page_preview=True)
 
 
 async def strat_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    url = context.user_data.get("URL")  #? Recupero l'url dal contesto
+    url = context.user_data.get("URL")  # Recupero l'url dal contesto
     curr_user_set = user_url_dict.get(update.message.from_user.username)
 
     if curr_user_set is None:
@@ -90,13 +85,15 @@ async def strat_task(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     if url not in curr_user_set:
         curr_user_set.add(url)
-        await update.message.reply_text("Done, url added correctly!")
+        await update.message.reply_text("URL added successfully!")
         user_url_dict[update.message.from_user.username] = curr_user_set
+
         logging.debug(print(user_url_dict))
         curr_task = create_task(trak_routine(update, url))
+        logging.debug(print(curr_task))
         task_dict[(update.message.from_user.username, url)] = curr_task
     else:
-        await update.message.reply_text("Sorry, url already added!")
+        await update.message.reply_text("This URL has already been added.")
 
 
 async def validate_url(update: Update, url):
@@ -110,44 +107,42 @@ async def state_request_url(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     url = update.message.text.replace("/follow", "").replace(" ", "")
 
     if len(url) <= 0:
-        await update.message.reply_text("Sorry, URL is empty! Please enter a valid URL:")
+        await update.message.reply_text("The provided URL is empty. Please enter a valid URL:")
         return STATE_REQUEST_URL  #? Rimango in questo stato per attendere l'url da seguire
 
-    if len(url) > 64:
-        await update.message.reply_text("Sorry, URL is too long (len > 64)... Please enter a valid URL:")
-        return STATE_REQUEST_URL  #? Rimango in questo stato per attendere l'url da seguire
+    # Url without query string
+    url = urljoin(url, urlparse(url).path)
 
     if await validate_url(update, url):
         context.user_data["URL"] = url  #? Salvo l'url nel contesto
         await strat_task(update, context)
         return ConversationHandler.END  #? Se l'url è stato aggiunto o meno, chiudiamo la conversazione
     else:
-        await update.message.reply_text("The URL is invalid, please try again or /cancel")
+        await update.message.reply_text("The provided URL is invalid. Please try again or use /cancel.")
         return STATE_REQUEST_URL  #? Rimango in questo stato per attendere l'url da seguire
 
 
 async def follow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Enter the URL to follow:")
+    await update.message.reply_text("Please enter the URL you wish to follow:")
     return STATE_REQUEST_URL  #? Passo in questo stato per attendere l'url da seguire
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    await update.message.reply_text("Ok! Cancelling your request.")
-    print("ConversationHandler.END")
+    await update.message.reply_text("Your request has been canceled.")
+    logging.debug(print("ConversationHandler.END"))
     return ConversationHandler.END
 
 
 async def unfollow(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     curr_list_url = user_url_dict.get(update.message.from_user.username)
     if curr_list_url is None:
-        await update.message.reply_text("You don't follow any url!")
+       await update.message.reply_text("You are not following any URLs.")
     else:
         choise = []
         for idx, url in enumerate(curr_list_url):
             choise.append([InlineKeyboardButton(f"{idx + 1}. {url}", callback_data=url)])
-            choise_markup = InlineKeyboardMarkup(choise)
-        await update.message.reply_text(f"Select the URL to unfollow:", reply_markup=choise_markup)
-
+        choise_markup = InlineKeyboardMarkup(choise)
+        await update.message.reply_text(f"Please select the URL you wish to unfollow:", reply_markup=choise_markup)
 
 
 async def unfollow_callback(update: Update, context: CallbackContext) -> None:
@@ -158,8 +153,10 @@ async def unfollow_callback(update: Update, context: CallbackContext) -> None:
 
     task_to_remove = task_dict.pop((update.effective_user.username, option), None)
 
-    if task_to_remove is not None:
+    if task_to_remove is not None and isinstance(task_to_remove, asyncio.Task):
         task_to_remove.cancel()
+        await asyncio.sleep(0.1)
+        logging.debug(print(f"Task for {option} has been terminated! {task_to_remove.done()}"))
 
     # Per eliminare l'option selezionata dalla funzione
     await update.callback_query.delete_message()
