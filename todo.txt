@@ -1,6 +1,4 @@
-Modifiche Apportate:
-1. Eliminazione dei task in background per il comando /unfollow
-2. Aggiunta del comando /cancel per l'eliminazione dell'ultima richiesta fatta per il comando /follow
 
-Modifice Da Fare:
-1. Far comparire nei bottoni del comando /unfollow il nome al sito e non l'url completo per evitare problemi di lunghezza
++ Stampare un messaggio di testo (o un immagine) contenente le modifiche che ci sono state
++ Mettere il bot in esecuzione sempre
++ Garantire maggiore sicurezza al bot
