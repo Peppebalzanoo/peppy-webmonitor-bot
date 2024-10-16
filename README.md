@@ -24,7 +24,7 @@ To get started, clone the repository, install the required dependencies, and con
 
 ### Commands
 - `/start`: Get a welcome message and an introduction to the bot.
-- `/follow [URL]`: Start following a website by providing its URL.
+- `/follow`: Start following a website by providing its URL.
 - `/unfollow`: Stop tracking a URL that you're following.
 - `/list`: Show all the URLs you're currently monitoring.
 - `/help`: Display all available commands.
