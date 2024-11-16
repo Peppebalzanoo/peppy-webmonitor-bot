@@ -15,16 +15,34 @@ PeppyWebMonitorBot continuously monitors the content of the websites you follow.
 ## Getting Started 🛠️
 To get started, clone the repository, install the required dependencies, and configure the bot by adding your Telegram bot API token and allowed user IDs to a `.env` file. Then, simply run the bot and start tracking websites with ease!
 
-### Requirements 📋
-- Python 3.x
-- `python-telegram-bot`
-- `httpx`
-- `dotenv`
-- `validators`
+
+---
 
 ### Commands 📝
 - `/start`: Get a welcome message and an introduction to the bot. 👋
 - `/follow`: Start following a website by providing its URL. 🌐
 - `/unfollow`: Stop tracking a URL that you're following. 🚫
+- `/stop`: Stop tracking all URLs you're currently monitoring. 🛑
+- `/cancel`: Cancel the current operation or command. ❌
 - `/list`: Show all the URLs you're currently monitoring. 📚
 - `/help`: Display all available commands. ℹ️
+
+---
+
+### Requirements 📋
+- Python 3.x
+- `python-telegram-bot==21.6`
+- `httpx==0.27.2`
+- `dotenv`
+- `validators==0.34.0`
+- `anyio==4.6.0`
+- `certifi==2024.8.30`
+- `exceptiongroup==1.2.2`
+- `h11==0.14.0`
+- `httpcore==1.0.6`
+- `idna==3.10`
+- `load-dotenv==0.1.0`
+- `python-dotenv==1.0.1`
+- `sniffio==1.3.1`
+- `typing_extensions==4.12.2`
+
