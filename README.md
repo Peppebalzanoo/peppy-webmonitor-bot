@@ -10,7 +10,7 @@
 - **Easy-to-Use Commands**: Explore the available commands at any time with `/help` to ensure you're getting the most out of PeppyWebMonitorBot. 🆘
 
 ## How It Works 🔍
-PeppyWebMonitorBot continuously monitors the content of the websites you follow. If any changes are detected, you'll receive a notification directly in your Telegram chat. No more manually refreshing pages to see if something's different—let the bot do the hard work for you! 💪
+PeppyWebMonitorBot continuously monitors the content of the websites you follow. If any changes are detected, you'll receive a notification directly in your Telegram chat. No more manually refreshing pages to see if something's different-let the bot do the hard work for you! 💪
 
 ## Getting Started 🛠️
 To get started, clone the repository, install the required dependencies, and configure the bot by adding your Telegram bot API token and allowed user IDs to a `.env` file. Then, simply run the bot and start tracking websites with ease! To start the bot, it must be properly configured. This includes adding the appropriate keys to the `.env` file. An example file, `.env.placeholder`, is provided to indicate which variables need to be defined. The bot can run locally or be hosted on hosting services. Some free hosting services provide a list of allowed URLs for making GET requests.
