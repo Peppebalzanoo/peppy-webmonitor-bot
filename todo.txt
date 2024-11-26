@@ -1,4 +1,0 @@
-
-+ Stampare un messaggio di testo (o un immagine) contenente le modifiche che ci sono state
-+ Mettere il bot in esecuzione sempre
-+ Garantire maggiore sicurezza al bot
